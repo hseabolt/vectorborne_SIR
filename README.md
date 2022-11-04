@@ -1,4 +1,3 @@
 # Vectorborne Diseases SIR model extensions
 
-hi?
-sup...
+This Github Project contains the code that accompanies a CSE 8803 Milestone Report
