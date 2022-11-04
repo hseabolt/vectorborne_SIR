@@ -21,13 +21,14 @@ def three_one_one_model_basic(
         N, K
 ):
     '''function will take in several lists with values for host/tick susceptible/infected/coninfected population
-      plus constant parameters like transmission/recovery/'''
+      plus constant parameters like transmission/recovery/Transovarial/transstadial rates'''
     # initial values
     Y_i, Y_j, Y_k, Y_ij, Y_ik, Y_jk, Y_ijk = host_states
     X_i, X_j, X_k, X_ij, X_ik, X_jk, X_ijk = vector_states
     A_i, A_j, A_k, A_ij, A_ji, A_ik, A_ki, A_jk, A_kj, A_ijk, A_ikj, A_jki = transmission_parameters_host
     r_i, r_j, r_k, r_ij, r_ji, r_ik, r_ki, r_jk, r_kj, r_ijk, r_ikj, r_jki = recovery_parameters_host
-    # still need to add Transovarial and transstadial transmission rates
+    # still need to add in transmission rates for vecotors
+    # still need to add Transovarial and transstadial rates
     Bh, bh, Bv, bv = natural_parameters
 
     #summation of tick populations infected with pathogen
