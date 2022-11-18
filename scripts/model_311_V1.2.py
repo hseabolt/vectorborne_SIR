@@ -138,8 +138,6 @@ def three_one_one_model_basic(
     return [dY1, dY2, dY3, dY12, dY13, dY23, dY123, dX1, dX2, dX3, dX12, dX13, dX23, dX123, dN, dV]
 
 
-'''everything below here is kept as a space saver to remind what to do later once all ODE are added'''
-
 
 def main():
     # positional args
