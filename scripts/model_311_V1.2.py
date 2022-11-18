@@ -11,6 +11,9 @@ import pandas as pd
 from scipy.integrate import ode, solve_ivp
 import matplotlib.pyplot as plt
 
+def gaussin_probability(value):
+    return np.random.normal(loc=value, scale=(value/4), size=None)
+
 
 def three_one_one_model_basic(
         initial_states,
@@ -20,22 +23,22 @@ def three_one_one_model_basic(
         transovarial_transstadial_patameters_vector,
         cofeeding_trasmission_vector,
         natural_parameters,
-        N,
         K,
-        V,
         M
 ):
-    print("I am in the funtion :)")
     '''function will take in several lists with values for host/tick susceptible/infected/coninfected population
       plus constant parameters like transmission/recovery/Transovarial/transstadial rates'''
 
-    # Y_1, Y_2, Y_3, Y_12, Y_13, Y_23, Y_123 = host_states
-    # X_1, X_2, X_3, X_12, X_13, X_23, X_123 = vector_states
-
-    Y_1, Y_2, Y_3, Y_12, Y_13, Y_23, Y_123, X_1, X_2, X_3, X_12, X_13, X_23, X_123 = initial_states
     host_states = initial_states[:7]
-    #vector_states = initial_states[7:]
+    #pull
+    transmission_parameters_host = [gaussin_probability(x) for x in transmission_parameters_host]
+    recovery_parameters_host = [gaussin_probability(x) for x in recovery_parameters_host]
+    transmission_parameters_vector = [gaussin_probability(x) for x in transmission_parameters_vector]
+    transovarial_transstadial_patameters_vector = [gaussin_probability(x) for x in transovarial_transstadial_patameters_vector]
+    cofeeding_trasmission_vector = [gaussin_probability(x) for x in cofeeding_trasmission_vector]
+    natural_parameters = [gaussin_probability(x) for x in natural_parameters]
 
+    Y_1, Y_2, Y_3, Y_12, Y_13, Y_23, Y_123, X_1, X_2, X_3, X_12, X_13, X_23, X_123, N, V = initial_states
     A_1, A_2, A_3, A_12, A_21, A_13, A_31, A_23, A_32, A_123, A_132, A_231 = transmission_parameters_host
     r_1, r_2, r_3, r_12, r_21, r_13, r_31, r_23, r_32, r_123, r_132, r_231 = recovery_parameters_host
     Ahat_1, Ahat_2, Ahat_3, Ahat_12, Ahat_21, Ahat_13, Ahat_31, Ahat_23, Ahat_32, Ahat_123, Ahat_132, Ahat_231 = transmission_parameters_vector
@@ -129,8 +132,10 @@ def three_one_one_model_basic(
             + ((u_123 * (X_3_sum * X_12)/V) + (u_132 * (X_2_sum * X_13)/V) + (u_231 * (X_1_sum * X_23)/V)) \
             - (Bv * (V*X_123/M*N) + bv*X_123)
 
+    dN = (Bh * ((K - N)/K) * N) - bh*N
+    dV = (Bv * ((M*N-V)/(M*N)) * V) - (bv*V)
 
-    return [dY1, dY2, dY3, dY12, dY13, dY23, dY123, dX1, dX2, dX3, dX12, dX13, dX23, dX123]
+    return [dY1, dY2, dY3, dY12, dY13, dY23, dY123, dX1, dX2, dX3, dX12, dX13, dX23, dX123, dN, dV]
 
 
 '''everything below here is kept as a space saver to remind what to do later once all ODE are added'''
@@ -138,22 +143,22 @@ def three_one_one_model_basic(
 
 def main():
     # positional args
-    # host_states = [1, 0, 0, 0, 0, 0, 0]
-    # vector_states = [200, 150, 100, 10, 10, 10, 5]
-    initial_states = [0.05, 0, 0, 0, 0, 0, 0, 0.05, 0.0375, 0.025, 0.0025, 0.0025, 0.0025, 0.00125]
-    transmission_parameters_host = [0.02, 0.02, 0.02, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.0067, 0.0067, 0.0067]
-    recovery_parameters_host = [0.166, 0.166, 0.166, 0.166, 0.166, 0.166, 0.166, 0.166, 0.166, 0.166, 0.166, 0.166]
-    transmission_parameters_vector = [0.07, 0.07, 0.07, 0.035, 0.035, 0.035, 0.035, 0.035, 0.035, 0.0233, 0.0233, 0.0233]
+    times = np.linspace(0, 10000, 10000)
+
+    initial_states = [1, 0, 0, 0, 0, 0, 0, 200, 150, 100, 10, 10, 10, 5, 20, 4000]
+    transmission_parameters_host = [0.02, 0.02, 0.02, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.005, 0.005, 0.005]
+    recovery_parameters_host = [0.1667, 0.1667, 0.1667, 0.1667, 0.1667, 0.1667, 0.1667, 0.1667, 0.1667, 0.1667, 0.1667, 0.1667]
+    transmission_parameters_vector = [0.07, 0.07, 0.07, 0.035, 0.035, 0.035, 0.035, 0.035, 0.035, 0.0175, 0.0175, 0.0175]
     transovarial_transstadial_patameters_vector = [0.4, 0.4, 0.4, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.1, 0.1, 0.1]
     cofeeding_trasmission_vector = [0.01, 0.01, 0.01, 0.005, 0.005, 0.005, 0.005, 0.005, 0.005, 0.0025, 0.0025, 0.0025]
-    natural_parameters = [0.2, 0, 0.75, 0.001]
-    N = 20
+    natural_parameters = [0.02, 0, 0.75, 0.001]
+
+    N = initial_states[-2]
+    V = initial_states[-1]
     K = 20
-    V = 4000
     M = 200
 
-    times = np.linspace(0, 200, 200)
-
+    print(initial_states)
     data = initial_states, transmission_parameters_host, recovery_parameters_host, transmission_parameters_vector, \
     transovarial_transstadial_patameters_vector, cofeeding_trasmission_vector, natural_parameters, N, K, V, M
 
@@ -164,7 +169,9 @@ def main():
                                                                     transovarial_transstadial_patameters_vector,
                                                                     cofeeding_trasmission_vector,
                                                                     natural_parameters,
-                                                                    N, K, V, M),
+                                                                    K,
+                                                                    M
+                                                                    ),
                              t_span=[min(times), max(times)], y0=initial_states, t_eval=times)
 
     # https://docs.scipy.org/doc/scipy/reference/generated/scipy.integrate.solve_ivp.html
@@ -179,22 +186,26 @@ def main():
 
 
     mean_Y1 = np.sum([SIR_solution.y[0], SIR_solution.y[3], SIR_solution.y[4], SIR_solution.y[6]], axis=0)
-    plt.plot(SIR_solution.t, mean_Y1, label="YT")
-    plt.plot(SIR_solution.t, SIR_solution.y[0], label="Y1")
-    # plt.plot(SIR_solution.t, SIR_solution.y[2])
+    final = [SIR_solution.y[x][-1] for x in range(len(SIR_solution.y))]
+    print(final)
+    plt.plot(SIR_solution.t, SIR_solution.y[0], label="Y1", linestyle="-")
+    plt.plot(SIR_solution.t, SIR_solution.y[1], label="Y2", linestyle="-")
+    plt.plot(SIR_solution.t, SIR_solution.y[2], label="Y3", linestyle="-")
     plt.plot(SIR_solution.t, SIR_solution.y[3], label="Y12", linestyle="-")
-    plt.plot(SIR_solution.t, SIR_solution.y[4], label="Y13")
-    # plt.plot(SIR_solution.t, SIR_solution.y[5])
-    plt.plot(SIR_solution.t, SIR_solution.y[6], label="Y123")
+    plt.plot(SIR_solution.t, SIR_solution.y[4], label="Y13", linestyle="-")
+    plt.plot(SIR_solution.t, SIR_solution.y[5], label="Y13", linestyle="-")
+    plt.plot(SIR_solution.t, SIR_solution.y[6], label="Y123", linestyle="-")
+    #plt.plot(SIR_solution.t, SIR_solution.y[7], label="X1", linestyle="-")
+    plt.plot(SIR_solution.t, SIR_solution.y[8], label="X2", linestyle="-")
+    plt.plot(SIR_solution.t, SIR_solution.y[9], label="X3", linestyle="-")
+    plt.plot(SIR_solution.t, SIR_solution.y[10], label="X12", linestyle="-")
+    plt.plot(SIR_solution.t, SIR_solution.y[11], label="X13", linestyle="-")
+    plt.plot(SIR_solution.t, SIR_solution.y[12], label="X13", linestyle="-")
+    #plt.plot(SIR_solution.t, SIR_solution.y[13], label="X123", linestyle="-")
+    plt.plot(SIR_solution.t, SIR_solution.y[14], label="N")
+    plt.plot(SIR_solution.t, SIR_solution.y[15], label="V")
     plt.legend()
-    # plt.plot(SIR_solution.t, SIR_solution.y[7])
-    # plt.plot(SIR_solution.t, SIR_solution.y[8])
-    # plt.plot(SIR_solution.t, SIR_solution.y[9])
-    # plt.plot(SIR_solution.t, SIR_solution.y[10])
-    # plt.plot(SIR_solution.t, SIR_solution.y[11])
-    # plt.plot(SIR_solution.t, SIR_solution.y[12])
-    # plt.plot(SIR_solution.t, SIR_solution.y[13])
-
+    plt.savefig("Model_311_trial.png", dpi=1200)
     plt.show()
 
 if __name__ == "__main__":
