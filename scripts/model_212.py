@@ -54,8 +54,8 @@ def model_212(initial_states, hosts_parameters, vector_parameters, natural_param
     dX1 = (Ahat1 * (V - X1 - X2 - X12) * ((Ya1 + Ya12) / Na + (Yb1 + Yb12) / Nb)) \
           + (Bv * (g1 * X1 + g12 * X12)) \
           + (u1 * (V - X1 - X2 - X12) * (X1 + X12) / V) \
-          - (Ahat12 * ((Ya1 + Ya12) / Na) * X1) \
-          - (Ahat12 * ((Yb1 + Yb12) / Nb) * X1) \
+          - (Ahat12 * ((Ya2 + Ya12) / Na) * X1) \
+          - (Ahat12 * ((Yb2 + Yb12) / Nb) * X1) \
           - (u12 * (X2 + X12) * X1 / V) \
           - ((Bv * V * X1) / M * (1 / Na) + (1 / Nb)) \
           - (bv * X1)
