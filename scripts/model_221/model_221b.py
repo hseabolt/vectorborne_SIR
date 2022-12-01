@@ -20,12 +20,10 @@ def model_221(times, initial_states, concatenated_params):
     hosts_parameters = concatenated_params[0:8]
     vector_parameters = concatenated_params[8:28]
     natural_parameters = concatenated_params[28:]
-
-    # hosts_parameters = [gaussin_probability(x) for x in hosts_parameters]
-    # vector_parameters = [gaussin_probability(x) for x in vector_parameters]
-
+    # print(times)
+    print(initial_states)
     '''stating variables'''
-    N, V, W, Y1, Y2, Y12, X1, X2, X12, Z1, Z2, Z12 = initial_states
+    N, V, W, Y1, Y2, Y12, X1, X2, X12, Z1, Z2, Z12, prior_time = initial_states
     # N = max(N, 0)
     # V = max(V, 0)
     # W = max(W,0)
@@ -38,10 +36,18 @@ def model_221(times, initial_states, concatenated_params):
     # Z1 = max(Z1, 0)
     # Z2 = max(Z2, 0)
     # Z12 = max(Z12, 0)
-    A1, A2, A12, A21, r1, r2, r12, r21 = hosts_parameters
-    Ahat1, Ahat2, Ahat12, Ahat21, gv1, gv2, gv12, gv21, gw1, gw2, gw12, gw21, uv1, uv2, uv12, uv21, uw1, uw2, uw12, uw21 = vector_parameters
+    delta = times - prior_time
+    norm_hosts_parameters = [i * delta for i in hosts_parameters]
+    norm_vector_parameters = [i * delta for i in vector_parameters]
+    A1, A2, A12, A21, r1, r2, r12, r21 = norm_hosts_parameters
+    Ahat1, Ahat2, Ahat12, Ahat21, gv1, gv2, gv12, gv21, gw1, gw2, gw12, gw21, uv1, uv2, uv12, uv21, uw1, uw2, uw12, uw21 = norm_vector_parameters
     B, b, Bv, bv, Bw, bw, K, Mv, Mw = natural_parameters
-
+    B = B * delta 
+    b = b * delta
+    Bv = Bv * delta 
+    bv = bv * delta 
+    Bw = Bw * delta 
+    bw = bw * delta 
     '''Change in Hosts and Vector (Ticks V and W) population'''
     dN = B * ((K-N)/K)*N - b*N
     dV = Bv*V * (((Mv*N-V)/(Mv*N))) - bv*V
@@ -153,4 +159,4 @@ def model_221(times, initial_states, concatenated_params):
     - (bw * Z12)) # decrement due to death
     # print([N, V, W, Y1, Y2, Y12, X1, X2, X12, Z1, Z2, Z12])
     # print([dN, dV, dW, dY1, dY2, dY12, dX1, dX2, dX12, dZ1, dZ2, dZ12])
-    return [dN, dV, dW, dY1, dY2, dY12, dX1, dX2, dX12, dZ1, dZ2, dZ12]
+    return [dN, dV, dW, dY1, dY2, dY12, dX1, dX2, dX12, dZ1, dZ2, dZ12, delta]
